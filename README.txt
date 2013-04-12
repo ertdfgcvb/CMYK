@@ -1,7 +1,7 @@
 -------------------------------------------------------------------------------
 CMYK
 
-These examples demonstrates the use of slightly modified 
+A few examples that demonstrate the use of slightly modified 
 Processing PGraphicsPDF class which permits, among a few other things, 
 to set colors in CMYK space.
 This class was used used at a Resonate.io workshop in Belgrade, 2013
