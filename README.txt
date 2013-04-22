@@ -23,25 +23,28 @@ Use at own risk.
 Examples
 
 1. cmyk
-Creates a two pages PDF document with CMYK and Spot colors.
-Overprint is also demonstrated on page two. To preview the overprint you may
-need to print the document or to open it with software that allows 
-overprint preview.
+This example creates a two pages pdf document with CMYK and spot colors; 
+overprint is also demonstrated on page two. To preview the overprint you 
+may need to print the document or to open it with software that allows overprint 
+preview. Se comments in code for more details.
+
 
 2. preview
-An example which shows how to preview the graphics on display 
-in RGB color space before creating the PDF output.
+An example which shows how to preview the graphics in rgb color space (monitor) 
+before creating the CMYK output (pdf).
 
 3. template
-This example loads an existing PDF file and uses it as a template.
+This example loads an existing pdf file and uses it as a template to create 
+a series of business cards, each with a slightly different form. 
+The output file is ready for (offset) print.
 
 -------------------------------------------------------------------------------
-Author: 
-	Andreas Gysin
-	@andreasgysin
+Author
 
-	http://ertdfgcvb.com/CMYK
-	http://github.com/ertdfgcvb/CMYK	
+Andreas Gysin
+@andreasgysin
+http://ertdfgcvb.com/CMYK
+http://github.com/ertdfgcvb/CMYK	
 
 -------------------------------------------------------------------------------
 Copyright (c) 2013 Andreas Gysin
