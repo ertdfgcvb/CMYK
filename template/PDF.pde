@@ -47,7 +47,7 @@ public class PDF extends PGraphicsJava2D {
   protected File file;
   protected OutputStream output;
   protected Document document;
-  protected PdfWriter writer;
+  public PdfWriter writer;
   protected PdfContentByte content;
   protected DefaultFontMapper mapper;
   protected String fontList[];
@@ -108,7 +108,7 @@ public class PDF extends PGraphicsJava2D {
     // make a copy
     strokeColorObject = new CMYKColor(col.getCyan(), col.getMagenta(), col.getYellow(), col.getBlack());
     stroke = true;
-  }
+  }  
 
   public void strokeK(float k) {
     // GrayColor uses whitness as parameter
@@ -145,6 +145,22 @@ public class PDF extends PGraphicsJava2D {
     fill = true;
   }
 
+  // AG: Axial Gradient
+  public void axialGradient(float x0, float y0, float x1, float y1, CMYKColor startColor, CMYKColor endColor) {
+    PdfShading shading = PdfShading.simpleAxial(writer, x0, height-y0, x1, height-y1, startColor, endColor, true, true);
+    PdfShadingPattern pattern = new PdfShadingPattern(shading);
+    fillColorObject = new ShadingColor(pattern);
+    fill = true;
+  }
+
+  // AG: Radial Gradient
+  public void radialGradient(float x0, float y0, float r0, float x1, float y1, float r1, CMYKColor startColor, CMYKColor endColor) {
+    PdfShading shading = PdfShading.simpleRadial(writer, x0, height-y0, r0, x1, height-y1, r1, startColor, endColor, true, true);
+    PdfShadingPattern pattern = new PdfShadingPattern(shading);
+    fillColorObject = new ShadingColor(pattern);
+    fill = true;
+  }
+
   // AG: Overpint Methods
   public void overPrint(boolean useOverPrint) {
     PdfGState gs = new PdfGState();
@@ -152,8 +168,7 @@ public class PDF extends PGraphicsJava2D {
       gs.setOverPrintMode(1);
       gs.setOverPrintNonStroking(true);
       gs.setOverPrintStroking(true);
-    } 
-    else {
+    } else {
       gs.setOverPrintMode(0);
       gs.setOverPrintNonStroking(false);
       gs.setOverPrintStroking(false);
@@ -178,8 +193,7 @@ public class PDF extends PGraphicsJava2D {
     }
     template = writer.getImportedPage(reader, 1);
   }
-  
-  // AG: the transform matrix is ignored 
+
   public void applyTemplate() {
     applyTemplate(0, 0);
   }
@@ -205,16 +219,16 @@ public class PDF extends PGraphicsJava2D {
   }
 
   /**
-   	 * Set the library to write to an output stream instead of a file.
-   	 */
+      * Set the library to write to an output stream instead of a file.
+      */
   public void setOutput(OutputStream output) {
     this.output = output;
   }
 
   /**
-   	 * all the init stuff happens in here, in case someone calls size()
-   	 * along the way and wants to hork things up.
-   	 */
+      * all the init stuff happens in here, in case someone calls size()
+      * along the way and wants to hork things up.
+      */
   @Override
     protected void allocate() {
     // can't do anything here, because this will be called by the
@@ -238,8 +252,7 @@ public class PDF extends PGraphicsJava2D {
         if (file != null) {
           // BufferedOutputStream output = new BufferedOutputStream(stream, 16384);
           output = new BufferedOutputStream(new FileOutputStream(file), 16384);
-        } 
-        else if (output == null) {
+        } else if (output == null) {
           throw new RuntimeException("PGraphicsPDF requires a path " + "for the location of the output file.");
         }
         writer = PdfWriter.getInstance(document, output);
@@ -290,8 +303,7 @@ public class PDF extends PGraphicsJava2D {
         // add the system font paths
         mapper.insertDirectory("/System/Library/Fonts");
         mapper.insertDirectory("/Library/Fonts");
-      } 
-      else if (PApplet.platform == PConstants.WINDOWS) {
+      } else if (PApplet.platform == PConstants.WINDOWS) {
         // how to get the windows fonts directory?
         // could be c:\winnt\fonts or c:\windows\fonts or not even c:
         // maybe do a Runtime.exec() on echo %WINDIR% ?
@@ -323,8 +335,7 @@ public class PDF extends PGraphicsJava2D {
             break;
           }
         }
-      } 
-      else if (PApplet.platform == PConstants.LINUX) {
+      } else if (PApplet.platform == PConstants.LINUX) {
         checkDir("/usr/share/fonts/", mapper);
         checkDir("/usr/local/share/fonts/", mapper);
         checkDir(System.getProperty("user.home") + "/.fonts", mapper);
@@ -343,10 +354,10 @@ public class PDF extends PGraphicsJava2D {
   }
 
   /**
-   	 * Recursive walk to get all subdirectories for font fun.
-   	 * Patch submitted by Matthias Breuer.
-   	 * (<a href="http://dev.processing.org/bugs/show_bug.cgi?id=1566">Bug 1566</a>)
-   	 */
+      * Recursive walk to get all subdirectories for font fun.
+      * Patch submitted by Matthias Breuer.
+      * (<a href="http://dev.processing.org/bugs/show_bug.cgi?id=1566">Bug 1566</a>)
+      */
   protected void traverseDir(File folder, DefaultFontMapper mapper) {
     File[] files = folder.listFiles();
     for (int i = 0; i < files.length; i++) {
@@ -369,13 +380,13 @@ public class PDF extends PGraphicsJava2D {
   }
 
   /**
-   	 * Gives the same basic functionality of File.exists but can be
-   	 * used to look for removable media without showing a system
-   	 * dialog if the media is not present. Workaround pulled from the
-   	 * <A HREF="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4089199">
-   	 * bug report</A> on bugs.sun.com. This bug was fixed in Java 6, and we
-   	 * can remove the workaround when we start requiring Java 6.
-   	 */
+      * Gives the same basic functionality of File.exists but can be
+      * used to look for removable media without showing a system
+      * dialog if the media is not present. Workaround pulled from the
+      * <A HREF="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4089199">
+      * bug report</A> on bugs.sun.com. This bug was fixed in Java 6, and we
+      * can remove the workaround when we start requiring Java 6.
+      */
   protected boolean fileExists(File file) {
     try {
       Process process = Runtime.getRuntime().exec(new String[] { 
@@ -418,8 +429,8 @@ public class PDF extends PGraphicsJava2D {
   }
 
   /**
-   	 * Call to explicitly go to the next page from within a single draw().
-   	 */
+      * Call to explicitly go to the next page from within a single draw().
+      */
   public void nextPage() {
     PStyle savedStyle = getStyle();
     endDraw();
@@ -441,8 +452,7 @@ public class PDF extends PGraphicsJava2D {
   protected Graphics2D createGraphics() {
     if (textMode == SHAPE) {
       return content.createGraphicsShapes(width, height);
-    } 
-    else if (textMode == MODEL) {
+    } else if (textMode == MODEL) {
       return content.createGraphics(width, height, getMapper());
     }
     // Should not be reachable...
@@ -461,74 +471,74 @@ public class PDF extends PGraphicsJava2D {
   }
 
   /**
-   	 * Don't open a window for this renderer, it won't be used.
-   	 */
+      * Don't open a window for this renderer, it won't be used.
+      */
   @Override
     public boolean displayable() {
     return false;
   }
 
   /*
-	 * protected void finalize() throws Throwable {
-   	 * System.out.println("calling finalize");
-   	 * //document.close(); // do this in dispose instead?
-   	 * }
-   	 */
+   * protected void finalize() throws Throwable {
+      * System.out.println("calling finalize");
+      * //document.close(); // do this in dispose instead?
+      * }
+      */
 
   // ////////////////////////////////////////////////////////////
 
   /*
-	 * public void endRecord() {
-   	 * super.endRecord();
-   	 * dispose();
-   	 * }
-   	 *
-   	 *
-   	 * public void endRaw() {
-   	 * System.out.println("ending raw");
-   	 * super.endRaw();
-   	 * System.out.println("disposing");
-   	 * dispose();
-   	 * System.out.println("done");
-   	 * }
-   	 */
+   * public void endRecord() {
+      * super.endRecord();
+      * dispose();
+      * }
+      *
+      *
+      * public void endRaw() {
+      * System.out.println("ending raw");
+      * super.endRaw();
+      * System.out.println("disposing");
+      * dispose();
+      * System.out.println("done");
+      * }
+      */
 
   // ////////////////////////////////////////////////////////////
 
   /*
-	 * protected void rectImpl(float x1, float y1, float x2, float y2) {
-   	 * //rect.setFrame(x1, y1, x2-x1, y2-y1);
-   	 * //draw_shape(rect);
-   	 * System.out.println("rect implements");
-   	 * g2.fillRect((int)x1, (int)y1, (int) (x2-x1), (int) (y2-y1));
-   	 * }
-   	 *
-   	 *
-   	 * /*
-   	 * public void clear() {
-   	 * g2.setColor(Color.red);
-   	 * g2.fillRect(0, 0, width, height);
-   	 * }
-   	 */
+   * protected void rectImpl(float x1, float y1, float x2, float y2) {
+      * //rect.setFrame(x1, y1, x2-x1, y2-y1);
+      * //draw_shape(rect);
+      * System.out.println("rect implements");
+      * g2.fillRect((int)x1, (int)y1, (int) (x2-x1), (int) (y2-y1));
+      * }
+      *
+      *
+      * /*
+      * public void clear() {
+      * g2.setColor(Color.red);
+      * g2.fillRect(0, 0, width, height);
+      * }
+      */
 
   // ////////////////////////////////////////////////////////////
 
   /*
-	 * protected void imageImplAWT(java.awt.Image awtImage,
-   	 * float x1, float y1, float x2, float y2,
-   	 * int u1, int v1, int u2, int v2) {
-   	 * pushMatrix();
-   	 * translate(x1, y1);
-   	 * int awtImageWidth = awtImage.getWidth(null);
-   	 * int awtImageHeight = awtImage.getHeight(null);
-   	 * scale((x2 - x1) / (float)awtImageWidth,
-   	 * (y2 - y1) / (float)awtImageHeight);
-   	 * g2.drawImage(awtImage,
-   	 * 0, 0, awtImageWidth, awtImageHeight,
-   	 * u1, v1, u2, v2, null);
-   	 * popMatrix();
-   	 * }
-   	 */
+   * protected void imageImplAWT(java.awt.Image awtImage,
+      * float x1, float y1, float x2, float y2,
+      * int u1, int v1, int u2, int v2) {
+      * pushMatrix();
+      * translate(x1, y1);
+      * int awtImageWidth = awtImage.getWidth(null);
+      * int awtImageHeight = awtImage.getHeight(null);
+      * scale((x2 - x1) / (float)awtImageWidth,
+      * (y2 - y1) / (float)awtImageHeight);
+      * g2.drawImage(awtImage,
+      * 0, 0, awtImageWidth, awtImageHeight,
+      * u1, v1, u2, v2, null);
+      * popMatrix();
+      * }
+      */
 
   // ////////////////////////////////////////////////////////////
 
@@ -549,12 +559,12 @@ public class PDF extends PGraphicsJava2D {
   }
 
   /**
-   	 * Change the textMode() to either SHAPE or MODEL. <br/>
-   	 * This resets all renderer settings, and therefore must
-   	 * be called <EM>before</EM> any other commands that set the fill()
-   	 * or the textFont() or anything. Unlike other renderers,
-   	 * use textMode() directly after the size() command.
-   	 */
+      * Change the textMode() to either SHAPE or MODEL. <br/>
+      * This resets all renderer settings, and therefore must
+      * be called <EM>before</EM> any other commands that set the fill()
+      * or the textFont() or anything. Unlike other renderers,
+      * use textMode() directly after the size() command.
+      */
   @Override
     public void textMode(int mode) {
     if (textMode != mode) {
@@ -563,18 +573,15 @@ public class PDF extends PGraphicsJava2D {
         g2.dispose();
         // g2 = content.createGraphicsShapes(width, height);
         g2 = createGraphics();
-      } 
-      else if (mode == MODEL) {
+      } else if (mode == MODEL) {
         textMode = MODEL;
         g2.dispose();
         // g2 = content.createGraphics(width, height, mapper);
         g2 = createGraphics();
         // g2 = template.createGraphics(width, height, mapper);
-      } 
-      else if (mode == SCREEN) {
+      } else if (mode == SCREEN) {
         throw new RuntimeException("textMode(SCREEN) not supported with PDF");
-      } 
-      else {
+      } else {
         throw new RuntimeException("That textMode() does not exist");
       }
     }
@@ -700,41 +707,39 @@ public class PDF extends PGraphicsJava2D {
   // ////////////////////////////////////////////////////////////
 
   /**
-   	 * Add a directory that should be searched for font data. <br/>
-   	 * On Mac OS X, the following directories are added by default:
-   	 * <UL>
-   	 * <LI>/System/Library/Fonts
-   	 * <LI>/Library/Fonts
-   	 * <LI>~/Library/Fonts
-   	 * </UL>
-   	 * On Windows, all drive letters are searched for WINDOWS\Fonts
-   	 * or WINNT\Fonts, any that exists is added. <br/>
-   	 * <br/>
-   	 * On Linux or any other platform, you'll need to add the
-   	 * directories by hand. (If there are actual standards here that we
-   	 * can use as a starting point, please file a bug to make a note of it)
-   	 */
+      * Add a directory that should be searched for font data. <br/>
+      * On Mac OS X, the following directories are added by default:
+      * <UL>
+      * <LI>/System/Library/Fonts
+      * <LI>/Library/Fonts
+      * <LI>~/Library/Fonts
+      * </UL>
+      * On Windows, all drive letters are searched for WINDOWS\Fonts
+      * or WINNT\Fonts, any that exists is added. <br/>
+      * <br/>
+      * On Linux or any other platform, you'll need to add the
+      * directories by hand. (If there are actual standards here that we
+      * can use as a starting point, please file a bug to make a note of it)
+      */
   public void addFonts(String directory) {
     mapper.insertDirectory(directory);
   }
 
   /**
-   	 * Check whether the specified font can be used with the PDF library.
-   	 *
-   	 * @param name
-   	 *        name of the font
-   	 * @return true if it's ok
-   	 */
+      * Check whether the specified font can be used with the PDF library.
+      *
+      * @param name
+      *        name of the font
+      * @return true if it's ok
+      */
   protected void checkFont() {
     Font awtFont = (Font) textFont.getNative();
     if (awtFont == null) { // always need a native font or reference to it
       throw new RuntimeException("Use createFont() instead of loadFont() " + "when drawing text using the PDF library.");
-    } 
-    else if (textMode != SHAPE) {
+    } else if (textMode != SHAPE) {
       if (textFont.isStream()) {
         throw new RuntimeException("Use textMode(SHAPE) with PDF when loading " + ".ttf and .otf files with createFont().");
-      } 
-      else if (mapper.getAliases().get(textFont.getName()) == null) {
+      } else if (mapper.getAliases().get(textFont.getName()) == null) {
         // System.out.println("alias for " + name + " = " + mapper.getAliases().get(name));
         // System.err.println("Use PGraphicsPDF.listFonts() to get a list of " +
         // "fonts that can be used with PDF.");
@@ -742,8 +747,7 @@ public class PDF extends PGraphicsJava2D {
         // "cannot be used with PDF Export.");
         if (textFont.getName().equals("Lucida Sans")) {
           throw new RuntimeException("Use textMode(SHAPE) with the default " + "font when exporting to PDF.");
-        } 
-        else {
+        } else {
           throw new RuntimeException("Use textMode(SHAPE) with " + "“" + textFont.getName() + "” " + "when exporting to PDF.");
         }
       }
@@ -751,9 +755,9 @@ public class PDF extends PGraphicsJava2D {
   }
 
   /**
-   	 * List the fonts known to the PDF renderer. This is like PFont.list(),
-   	 * however not all those fonts are available by default.
-   	 */
+      * List the fonts known to the PDF renderer. This is like PFont.list(),
+      * however not all those fonts are available by default.
+      */
   public String[] listFonts() {
     if (fontList == null) {
       HashMap<?, ?> map = getMapper().getAliases();

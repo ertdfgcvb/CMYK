@@ -23,11 +23,11 @@ Use at own risk.
 Examples
 
 1. cmyk
-This example creates a two pages pdf document with CMYK and spot colors; 
-overprint is also demonstrated on page two. To preview the overprint you 
+This example creates a four pages pdf document with CMYK and spot colors; 
+overprint is demonstrated on page two. To preview the overprint you 
 may need to print the document or to open it with software that allows overprint 
-preview. Se comments in code for more details.
-
+preview. Gradients are on page three and four.
+See comments in code for more details.
 
 2. preview
 An example which shows how to preview the graphics in rgb color space (monitor) 
