@@ -94,7 +94,6 @@ public class PDF extends PGraphicsJava2D {
 
   // AG: setSize for float values
   public void setSize(float w, float h) {
-    println("setsize(float)");
     super.setSize((int)w, (int)h);
     this.width = w;
     this.height = h;
@@ -114,7 +113,6 @@ public class PDF extends PGraphicsJava2D {
   // AG: in case int values are used
   @Override
     public void setSize(int w, int h) {
-      println("setsize int");
     setSize((float) w, (float) h);
   }
 
